@@ -30,14 +30,17 @@ TEST_TARGETS  = $(TARGET_DIR)/gpio.bin
 TEST_TARGETS += $(TARGET_DIR)/memory.bin
 TEST_TARGETS += $(TARGET_DIR)/vga.bin
 TEST_TARGETS += $(TARGET_DIR)/uart.bin
+SRC_OBJS   = $(SRC_DIR)/*.o
 
-.PHONY: all test src_make test_make clean
+.PHONY: all ubw test ubw_make test_make clean
 
 all: $(TARGET_DIR) test
 
+ubw: $(TARGET_DIR) ubw_make $(TARGET_DIR)/ubw.bin
+
 test: $(TARGET_DIR) test_make $(TEST_TARGETS)
 
-src_make:
+ubw_make:
 	make -C $(SRC_DIR)
 
 test_make:
@@ -55,8 +58,8 @@ $(TARGET_DIR):
 $(TARGET_DIR)/%.elf: $(TEST_DIR)/%.o
 	$(LD) -Ttext 0xbfc00000 -o $@ $^
 
-$(TARGET_DIR)/ubw.elf: $(SRC_DIR)/*.o
-	$(LD) -Ttext 0xbfc00000 -o $@ $^
+$(TARGET_DIR)/ubw.elf: linker.ld $(SRC_OBJS)
+	$(LD) -T linker.ld -o $@ $(SRC_OBJS)
 
 $(TARGET_DIR)/%.bin: $(TARGET_DIR)/%.elf
 	$(OBJC) $^ $@
