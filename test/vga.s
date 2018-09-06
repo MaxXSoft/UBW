@@ -4,14 +4,13 @@
 __start:
     # default graphic memory base address
     lui $t0, 0x0500
-    li $t1, 0xffff
+    li $t1, 0x06ffffff
 loop:
     sw $t0, ($t0)
-    andi $t2, $t0, 0xffff
-    beq $t1, $t2, halt
+    beq $t1, $t0, halt
     nop
     b loop
-    addiu $t0, $t0, 1
+    addiu $t0, $t0, 4
 
 halt:
     b halt
