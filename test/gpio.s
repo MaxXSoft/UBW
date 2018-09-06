@@ -1,13 +1,12 @@
 .set noreorder
-.globl main
+.global __start
 
-main:
+__start:
     # judge if switch=1
     li $t0, 1
     lui $t1, 0xbfd0
-    lw $t1, 0x5000($t1)
     beq $t0, $t1, disp_timer
-    nop
+    lw $t1, 0x5000($t1)
 disp_keypad:
     # red light
     li $t0, 1
@@ -20,7 +19,7 @@ disp_keypad:
     sw $t0, 0x5010($t1)
     sw $t0, 0x5014($t1)
     # loop
-    b main
+    b __start
     nop
 disp_timer:
     # green light
@@ -34,5 +33,5 @@ disp_timer:
     sw $t0, 0x5010($t1)
     sw $t0, 0x5014($t1)
     # loop
-    b main
+    b __start
     nop
