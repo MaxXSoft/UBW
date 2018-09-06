@@ -5,8 +5,9 @@ __start:
     # judge if switch=1
     li $t0, 1
     lui $t1, 0xbfd0
-    beq $t0, $t1, disp_timer
     lw $t1, 0x5000($t1)
+    beq $t0, $t1, disp_timer
+    nop
 disp_keypad:
     # red light
     li $t0, 1
