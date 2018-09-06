@@ -3,6 +3,10 @@
 
 #include "type.h"
 
+#ifndef MEM_HEAP_BASE
+#define MEM_HEAP_BASE  0x04000000
+#endif
+
 void *malloc(size_t length);
 void free(void *ptr);
 void *memset(void *dest, uint8_t byte, size_t length);
