@@ -4,6 +4,7 @@
 #include "type.h"
 
 void SetVideoMemAddr(size_t addr);
+void *GetVideoMem();
 void SetVGAStatus(int rotated, int enabled);
 
 #endif // UBW_VGA_H_
