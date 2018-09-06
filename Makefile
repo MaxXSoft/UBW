@@ -5,7 +5,7 @@ export OPT_LEVEL = 2
 # C compiler
 CFLAGS := -c -O$(OPT_LEVEL) -mips1 -EL -G8 -fno-builtin -nostdlib
 CFLAGS += -nostdinc -fno-reorder-blocks -fno-reorder-functions
-CFLAGS += -mno-abicalls -msoft-float
+CFLAGS += -mno-abicalls -msoft-float -finline-functions
 export CC := $(CROSS_PREFIX)gcc $(CFLAGS)
 
 # assembler
@@ -30,7 +30,8 @@ TEST_TARGETS  = $(TARGET_DIR)/gpio.bin
 TEST_TARGETS += $(TARGET_DIR)/memory.bin
 TEST_TARGETS += $(TARGET_DIR)/vga.bin
 TEST_TARGETS += $(TARGET_DIR)/uart.bin
-SRC_OBJS   = $(SRC_DIR)/*.o
+SRC_OBJS      = $(SRC_DIR)/*.o
+SRC_OBJS     += $(SRC_DIR)/library/*.o
 
 .PHONY: all ubw test ubw_make test_make clean
 
@@ -42,6 +43,7 @@ test: $(TARGET_DIR) test_make $(TEST_TARGETS)
 
 ubw_make:
 	make -C $(SRC_DIR)
+	make -C $(SRC_DIR)/library
 
 test_make:
 	make -C $(TEST_DIR)
