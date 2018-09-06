@@ -1,6 +1,5 @@
 .set noreorder
 .global __start
-.extern KernelMain
 
 .org 0x000
 __start:
