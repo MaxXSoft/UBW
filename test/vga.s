@@ -6,7 +6,7 @@ __start:
     lui $t0, 0x0500
     li $t1, 0xffff
 loop:
-    sw $t0, $t0
+    sw $t0, ($t0)
     andi $t2, $t0, 0xffff
     beq $t1, $t2, halt
     nop
