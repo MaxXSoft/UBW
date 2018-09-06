@@ -11,6 +11,6 @@ typedef int            int32_t;
 
 typedef unsigned int   size_t;
 
-#define NULL           ((size_t)0)
+#define NULL           ((void *)0)
 
 #endif // UBW_TYPE_H_
