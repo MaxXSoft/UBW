@@ -4,7 +4,11 @@
 #include "type.h"
 
 #ifndef MEM_HEAP_BASE
-#define MEM_HEAP_BASE  0x04000000
+#define MEM_HEAP_BASE 0x84000000
+#endif
+
+#ifndef MEM_HEAP_SIZE
+#define MEM_HEAP_SIZE 0x100000
 #endif
 
 void *malloc(size_t length);
