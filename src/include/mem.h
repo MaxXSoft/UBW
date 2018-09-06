@@ -6,6 +6,7 @@
 void *malloc(size_t length);
 void free(void *ptr);
 void *memset(void *dest, uint8_t byte, size_t length);
-void *memcpy(void *dest, void *src, size_t length);
+void *memcpy(void *dest, const void *src, size_t length);
+int memcmp(const void *lhs, const void *rhs, size_t length);
 
 #endif // UBW_MEM_H_
