@@ -1,8 +1,18 @@
 #include "../include/vga.h"
+#include "../include/type.h"
 #include "../include/soc.h"
 
-void SetVideoMemAddr(size_t addr) {
-    VGA_AR = addr & 0xfff00000;
+static void *video_mem = 0x85000000;
+
+void SetVideoMemAddr(void *addr) {
+    video_mem = (void *)((size_t)addr & 0x3ff00000);
+    VGA_AR = video_mem;
+    // make sure the memory address is in kseg0
+    video_mem = (void *)((size_t)video_mem | 0x80000000);
+}
+
+void *GetVideoMem() {
+    return video_mem;
 }
 
 void SetVGAStatus(int rotated, int enabled) {
