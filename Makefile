@@ -53,10 +53,10 @@ $(TARGET_DIR):
 	mkdir $(TARGET_DIR)
 
 $(TARGET_DIR)/%.elf: $(TEST_DIR)/%.o
-	$(LD) -Ttest 0xbfc00000 -o $@ $^
+	$(LD) -Ttext 0xbfc00000 -o $@ $^
 
 $(TARGET_DIR)/ubw.elf: $(SRC_DIR)/*.o
-	$(LD) -Ttest 0xbfc00000 -o $@ $^
+	$(LD) -Ttext 0xbfc00000 -o $@ $^
 
 $(TARGET_DIR)/%.bin: $(TARGET_DIR)/%.elf
 	$(OBJC) $^ $@
