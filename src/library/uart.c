@@ -1,5 +1,5 @@
-#include "include/uart.h"
-#include "include/soc.h"
+#include "../include/uart.h"
+#include "../include/soc.h"
 
 void InitUART(uint32_t baudrate) {
     // disable FIFO

@@ -1,5 +1,5 @@
-#include "include/vga.h"
-#include "include/soc.h"
+#include "../include/vga.h"
+#include "../include/soc.h"
 
 void SetVideoMemAddr(size_t addr) {
     VGA_AR = addr & 0xfff00000;
