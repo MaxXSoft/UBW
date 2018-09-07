@@ -1,12 +1,14 @@
 #include "include/soc.h"
 #include "include/uart.h"
 #include "include/stdio.h"
+#include "include/debug.h"
 
 #include "kernel.h"
 #include "shell.h"
 
 static void PrintAbout() {
     puts("Unlimited Boot Works, version 0.01");
+    DEBUG(5);   // TODO: add more debug point
     puts("Copyright (C) 2010-2018 MaxXSoft MaxXing.");
     puts("Copyright (C) 2018 USTB NSCSCC Team.\n");
     puts("System Information:");
