@@ -1,6 +1,8 @@
 #ifndef UBW_INCLUDE_SOC_H_
 #define UBW_INCLUDE_SOC_H_
 
+#include "type.h"
+
 // CPU
 #define CPU_CLOCK   60000000
 
@@ -60,6 +62,7 @@ inline SoCInfo GetSoCInfo() {
     soc_info.cpu_clock = 60;
     soc_info.bus_clock = 60;
     soc_info.mem_size = 128;
+    return soc_info;
 }
 
 #endif // UBW_INCLUDE_SOC_H_

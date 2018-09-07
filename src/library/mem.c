@@ -20,11 +20,11 @@ static Header base;
 static Header *free_unit = NULL;
 
 // heap
-uint8_t *heap_base = MEM_HEAP_BASE;
+uint8_t *heap_base = (uint8_t *)MEM_HEAP_BASE;
 
 // function in C library
 static uint8_t *sbrk(int size) {
-    if (heap_base + size > MEM_HEAP_BASE + MEM_HEAP_SIZE) {
+    if ((uint32_t)heap_base + size > MEM_HEAP_BASE + MEM_HEAP_SIZE) {
         return NULL;
     }
     uint8_t *p = heap_base;
@@ -106,10 +106,12 @@ void free(void *ptr) {
 void *memset(void *dest, uint8_t byte, size_t length) {
     uint32_t word = (byte << 24) | (byte << 16) | (byte << 8) | byte;
     uint32_t *ptr_4;
-    for (ptr_4 = dest; ptr_4 + 4 <= dest + length; ptr_4 += 4) {
+    for (ptr_4 = dest; (uint32_t)ptr_4 + 4 <= (uint32_t)dest + length;
+            ptr_4 += 4) {
         *ptr_4 = word;
     }
-    for (uint8_t *ptr_1 = ptr_4; ptr_1 < dest + length; ++ptr_1) {
+    for (uint8_t *ptr_1 = (uint8_t *)ptr_4;
+            (uint32_t)ptr_1 < (uint32_t)dest + length; ++ptr_1) {
         *ptr_1 = byte;
     }
     return dest;

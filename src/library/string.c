@@ -54,18 +54,18 @@ int strncmp(const char *lhs, const char *rhs, size_t count) {
 char *strchr(const char *str, int ch) {
     if (!str) return NULL;
     for (; *str; ++str) {
-        if (*str == ch) return str;
+        if (*str == ch) return (char *)str;
     }
     return NULL;
 }
 
 char *strrchr(const char *str, int ch) {
     if (!str) return NULL;
-    char *ptr = NULL;
+    const char *ptr = NULL;
     for (; *str; ++str) {
         if (*str == ch) ptr = str;
     }
-    return ptr;
+    return (char *)ptr;
 }
 
 int atoi(const char *str) {
@@ -77,7 +77,7 @@ long atol(const char *str) {
 }
 
 long strtol(const char *str, char **str_end, int base) {
-    char *ptr = str;
+    const char *ptr = str;
     int ch, neg = 0;
     // skip spaces
     do {
@@ -157,7 +157,7 @@ long strtol(const char *str, char **str_end, int base) {
 
 unsigned long strtoul(const char *str, char **str_end, int base) {
     // similar to the above
-    char *ptr = str;
+    const char *ptr = str;
     int ch, neg = 0;
     do {
         ch = *ptr++;

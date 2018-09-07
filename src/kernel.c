@@ -81,7 +81,7 @@ void KernelMain() {
     InitUART(230400);
     // get GPIO switch status
     if (((~GPIO_SWITCH) & 0x01)) {
-        InitSystemFromDisk(0x80000000, 0);
+        InitSystemFromDisk((void *)0x80000000, 0);
     }
     else {
         InitShell();

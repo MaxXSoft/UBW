@@ -2,11 +2,11 @@
 #include "../include/type.h"
 #include "../include/soc.h"
 
-static void *video_mem = 0x85000000;
+static void *video_mem = (void *)0x85000000;
 
 void SetVideoMemAddr(void *addr) {
     video_mem = (void *)((size_t)addr & 0x3ff00000);
-    VGA_AR = video_mem;
+    VGA_AR = (size_t)video_mem;
     // make sure the memory address is in kseg0
     video_mem = (void *)((size_t)video_mem | 0x80000000);
 }

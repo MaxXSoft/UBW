@@ -67,7 +67,7 @@ int printf(const char *format, ...) {
                     break;
                 }
                 case 'c': {
-                    PutByteUART((uint8_t)*arg);
+                    PutByteUART((int)*arg);
                     ++arg;
                     ++i;
                     break;
