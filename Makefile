@@ -3,9 +3,10 @@ export CROSS_PREFIX = mipsel-linux-
 export OPT_LEVEL = 3
 
 # C compiler
-CFLAGS := -c -O$(OPT_LEVEL) -mips1 -EL -G8 -Wall -Werror -fno-builtin
-CFLAGS += -nostdlib -nostdinc -fno-reorder-blocks -fno-reorder-functions
-CFLAGS += -mno-abicalls -msoft-float -finline-functions
+CFLAGS := -c -O$(OPT_LEVEL) -mips1 -EL -G8 -Wall -Werror -std=gnu99
+CFLAGS += -fno-builtin -nostdlib -nostdinc -fno-reorder-blocks
+CFLAGS += -fno-reorder-functions -mno-abicalls -msoft-float
+CFLAGS += -finline-functions
 export CC := $(CROSS_PREFIX)gcc $(CFLAGS)
 
 # assembler
@@ -17,7 +18,7 @@ LDFLAGS := -nostdlib -n -EL
 LD := $(CROSS_PREFIX)ld $(LDFLAGS)
 
 # object copy
-OBJCFLAGS := -j .text -O binary
+OBJCFLAGS := -O binary -j .text
 OBJC := $(CROSS_PREFIX)objcopy $(OBJCFLAGS)
 
 # directory definitions
@@ -30,8 +31,7 @@ TEST_TARGETS  = $(TARGET_DIR)/gpio.bin
 TEST_TARGETS += $(TARGET_DIR)/memory.bin
 TEST_TARGETS += $(TARGET_DIR)/vga.bin
 TEST_TARGETS += $(TARGET_DIR)/uart.bin
-SRC_OBJS      = $(SRC_DIR)/*.o
-SRC_OBJS     += $(SRC_DIR)/library/*.o
+SRC_OBJS      = $(wildcard $(SRC_DIR)/*.o $(SRC_DIR)/library/*.o)
 
 .PHONY: all ubw test ubw_make test_make clean
 
@@ -43,7 +43,6 @@ test: $(TARGET_DIR) test_make $(TEST_TARGETS)
 
 ubw_make:
 	make -C $(SRC_DIR)
-	make -C $(SRC_DIR)/library
 
 test_make:
 	make -C $(TEST_DIR)
@@ -60,8 +59,10 @@ $(TARGET_DIR):
 $(TARGET_DIR)/%.elf: $(TEST_DIR)/%.o
 	$(LD) -Ttext 0xbfc00000 -o $@ $^
 
-$(TARGET_DIR)/ubw.elf: linker.ld $(SRC_OBJS)
+$(TARGET_DIR)/ubw.elf: linker.ld
+	$(eval SRC_OBJS = $(wildcard $(SRC_DIR)/*.o $(SRC_DIR)/library/*.o))
+	@echo $(SRC_OBJS)
 	$(LD) -T linker.ld -o $@ $(SRC_OBJS)
 
 $(TARGET_DIR)/%.bin: $(TARGET_DIR)/%.elf
-	$(OBJC) $^ $@
+	$(OBJC) -j .data $^ $@

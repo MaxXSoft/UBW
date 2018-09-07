@@ -14,3 +14,4 @@ all: $(ASM_FILES) $(C_FILES)
 
 clean:
 	-rm -f *.o
+	make -C ./library clean
