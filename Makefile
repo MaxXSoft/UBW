@@ -3,13 +3,13 @@ export CROSS_PREFIX = mipsel-linux-
 export OPT_LEVEL = 3
 
 # C compiler
-CFLAGS := -c -O$(OPT_LEVEL) -mips1 -EL -G8 -fno-builtin -nostdlib
-CFLAGS += -nostdinc -fno-reorder-blocks -fno-reorder-functions
+CFLAGS := -c -O$(OPT_LEVEL) -mips1 -EL -G8 -Wall -Werror -fno-builtin
+CFLAGS += -nostdlib -nostdinc -fno-reorder-blocks -fno-reorder-functions
 CFLAGS += -mno-abicalls -msoft-float -finline-functions
 export CC := $(CROSS_PREFIX)gcc $(CFLAGS)
 
 # assembler
-ASFLAGS := -mips1 -EL
+ASFLAGS := -mips32 -EL   # in order to support instructions such as 'eret'
 export AS := $(CROSS_PREFIX)as $(ASFLAGS)
 
 # linker

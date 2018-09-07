@@ -10,6 +10,7 @@ C_FILES   := $(patsubst %.c, %.o, $(wildcard *.c))
 	$(AS) -o $@ $^
 
 all: $(ASM_FILES) $(C_FILES)
+	make -C ./library
 
 clean:
 	-rm -f *.o
