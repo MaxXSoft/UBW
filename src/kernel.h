@@ -3,13 +3,6 @@
 
 #include "include/type.h"
 
-#ifndef DISABLE_DEBUG
-#include "include/soc.h"
-#define DEBUG(v)  GPIO_NUM = (v);
-#else
-#define DEBUG(v)  ((void)0)
-#endif
-
 const char *GetCurrentSeg();
 
 void WriteDisk(const void *memory, size_t length, size_t disk_pos);
