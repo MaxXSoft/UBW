@@ -12,6 +12,6 @@
 #include "include/uart.h"
 
 void KernelMain() {
-    // initialize UART controller with 230400 baudrate
+    // initialize UART controller with 230400 baud rate
     InitUART(230400);
 }

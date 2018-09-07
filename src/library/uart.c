@@ -1,12 +1,12 @@
 #include "../include/uart.h"
 #include "../include/soc.h"
 
-void InitUART(uint32_t baudrate) {
+void InitUART(uint32_t baud_rate) {
     // disable FIFO
     UART_FCR = 0;
     // calculate divisor
-    uint32_t divisor = CPU_CLOCK / (16 * baudrate);
-    // set baudrate
+    uint32_t divisor = CPU_CLOCK / (16 * baud_rate);
+    // set baud rate
     UART_LCR = 0x80;
     UART_DLL = divisor;
     UART_DLM = 0;

@@ -3,7 +3,7 @@
 
 #include "type.h"
 
-void InitUART(uint32_t baudrate);
+void InitUART(uint32_t baud_rate);
 uint8_t GetByteUART();
 void PutByteUART(uint8_t byte);
 uint32_t GetWordUART();
