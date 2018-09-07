@@ -21,6 +21,10 @@ LD := $(CROSS_PREFIX)ld $(LDFLAGS)
 OBJCFLAGS := -O binary -j .text
 OBJC := $(CROSS_PREFIX)objcopy $(OBJCFLAGS)
 
+# object dump
+OBJDFLAGS := -alD
+OBJD := $(CROSS_PREFIX)objdump $(OBJDFLAGS)
+
 # directory definitions
 TARGET_DIR = ./build
 SRC_DIR = ./src
@@ -63,6 +67,7 @@ $(TARGET_DIR)/ubw.elf: linker.ld
 	$(eval SRC_OBJS = $(wildcard $(SRC_DIR)/*.o $(SRC_DIR)/library/*.o))
 	@echo $(SRC_OBJS)
 	$(LD) -T linker.ld -o $@ $(SRC_OBJS)
+	$(OBJD) $@ > $@.s
 
 $(TARGET_DIR)/%.bin: $(TARGET_DIR)/%.elf
 	$(OBJC) -j .data $^ $@
