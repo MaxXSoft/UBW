@@ -14,6 +14,7 @@ int puts(const char *str) {
     for (; !(*str); ++str) {
         PutByteUART(*str);
     }
+    PutByteUART('\n');
     return 0;
 }
 
