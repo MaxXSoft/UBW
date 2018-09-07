@@ -28,11 +28,11 @@ const char *GetCurrentSeg() {
     }
 }
 
-void WriteDisk(void *memory, size_t length, size_t disk_pos) {
+void WriteDisk(const void *memory, size_t length, size_t disk_pos) {
     //
 }
 
-void InitSystemFromDisk(size_t disk_pos) {
+void InitSystemFromDisk(void *memory, size_t disk_pos) {
     // TODO: implement NAND controller
     // blink
     for (;;) {
@@ -43,6 +43,18 @@ void InitSystemFromDisk(size_t disk_pos) {
     }
 }
 
+void InitSystemFromMemory(const void *memory) {
+    // memory must be a multiple of 4
+    if (((size_t)memory & 0x3)) return;
+    // reset GPIO
+    GPIO_BILED0 = GPIO_BILED_OFF;
+    GPIO_BILED1 = GPIO_BILED_OFF;
+    GPIO_LED = 0xffff;
+    GPIO_NUM = 0;
+    // jump to memory address
+    asm volatile ("jr $a1");
+}
+
 void OverrideSPI(const void *memory, size_t length) {
     //
     /*
@@ -51,8 +63,8 @@ void OverrideSPI(const void *memory, size_t length) {
 }
 
 void LoadMemoryFromUART(void *memory, size_t length) {
-    // length must be a multiple of 4
-    if ((length & 0x3)) return;
+    // memory & length must be a multiple of 4
+    if (((size_t)memory & 0x3) || (length & 0x3)) return;
     while (length) {
         *((uint32_t *)memory) = GetWordUART();
         memory += 4;
@@ -60,12 +72,16 @@ void LoadMemoryFromUART(void *memory, size_t length) {
     }
 }
 
+void LoadMemoryFromXmodem(void *memory) {
+    //
+}
+
 void KernelMain() {
     // initialize UART controller with 230400 baud rate
     InitUART(230400);
     // get GPIO switch status
     if (((~GPIO_SWITCH) & 0x01)) {
-        InitSystemFromDisk(0);
+        InitSystemFromDisk(0x80000000, 0);
     }
     else {
         InitShell();
