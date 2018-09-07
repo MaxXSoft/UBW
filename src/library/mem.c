@@ -112,9 +112,11 @@ void *memset(void *dest, uint8_t byte, size_t length) {
     for (uint8_t *ptr_1 = ptr_4; ptr_1 < dest + length; ++ptr_1) {
         *ptr_1 = byte;
     }
+    return dest;
 }
 
 void *memcpy(void *dest, const void *src, size_t length) {
+    void *p = dest;
     while (length >= 4) {
         *((uint32_t *)dest) = *((uint32_t *)src);
         dest += 4;
@@ -124,29 +126,23 @@ void *memcpy(void *dest, const void *src, size_t length) {
     while (length--) {
         *((uint8_t *)dest++) = *((uint8_t *)src++);
     }
+    return p;
 }
 
 int memcmp(const void *lhs, const void *rhs, size_t length) {
+    int result = 0;
     while (length >= 4) {
-        if (*((uint32_t *)lhs) < *((uint32_t *)rhs)) {
-            return -1;
-        }
-        else if (*((uint32_t *)lhs) > *((uint32_t *)rhs)) {
-            return 1;
+        if ((result = *((uint32_t *)lhs) - *((uint32_t *)rhs))) {
+            return result;
         }
         lhs += 4;
         rhs += 4;
         length -= 4;
     }
     while (length--) {
-        if (*((uint8_t *)lhs) < *((uint8_t *)rhs)) {
-            return -1;
+        if ((result = *((uint8_t *)lhs++) - *((uint8_t *)rhs++))) {
+            return result;
         }
-        else if (*((uint8_t *)lhs) > *((uint8_t *)rhs)) {
-            return 1;
-        }
-        ++lhs;
-        ++rhs;
     }
-    return 0;
+    return result;
 }
