@@ -20,13 +20,5 @@ __start:
 
 .org 0x380
 _interrupt_entry:
-    # display CP0.Cause
-    lui $t0, 0xbfd0
-    mfc0 $t1, $13
-    sw $t1, 0x5014($t0)
-    # resume next
-    mfc0 $t0, $14
-    addiu $t0, $t0, 4
-    mtc0 $t0, $14
-    eret
+    b ExceptionHandler
     nop

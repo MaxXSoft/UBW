@@ -12,6 +12,7 @@
 #include "include/soc.h"
 #include "include/uart.h"
 #include "include/time.h"
+#include "include/debug.h"
 
 #include "kernel.h"
 #include "shell.h"
@@ -77,13 +78,33 @@ void LoadMemoryFromXmodem(void *memory) {
 }
 
 void KernelMain() {
+    DEBUG(1);
     // initialize UART controller with 230400 baud rate
     InitUART(230400);
+    DEBUG(2);
     // get GPIO switch status
     if (((~GPIO_SWITCH) & 0x01)) {
+        DEBUG(3);
         InitSystemFromDisk((void *)0x80000000, 0);
     }
     else {
+        DEBUG(4);
         InitShell();
+    }
+}
+
+void ExceptionHandler() {
+    size_t cause, epc;
+    asm volatile ("mfc0 %0, $13" : "=r"(cause));
+    asm volatile ("mfc0 %0, $14" : "=r"(epc));
+    for (;;) {
+        if (((~GPIO_SWITCH) & 0x01)) {
+            // display CP0.EPC
+            GPIO_NUM = epc;
+        }
+        else {
+            // display CP0.Cause
+            GPIO_NUM = cause;
+        }
     }
 }
