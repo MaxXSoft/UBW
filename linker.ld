@@ -22,7 +22,7 @@ SECTIONS
     /* .gnu.warning sections are handled specially by elf32.em.  */
     *(.gnu.warning)
     _fdata = . ;
-    _stack = _fdata + 0x100000 -32;
+    _stack = _fdata + 0x200000 -32;
     *(.data)
     *(.data*) 
                 __CTOR_LIST__ = .;
