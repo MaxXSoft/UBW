@@ -47,4 +47,19 @@
 #define UART_LSR_DR   (1 << 0)   // data_ready
 #define UART_LSR_THRE (1 << 5)   // data_ready
 
+typedef struct SoCInfoPrototype {
+    const char *cpu_name;
+    size_t cpu_clock;       // MHz
+    size_t bus_clock;       // MHz
+    size_t mem_size;        // MiB
+} SoCInfo;
+
+inline SoCInfo GetSoCInfo() {
+    SoCInfo soc_info;
+    soc_info.cpu_name = "Uranus Zero";
+    soc_info.cpu_clock = 60;
+    soc_info.bus_clock = 60;
+    soc_info.mem_size = 128;
+}
+
 #endif // UBW_INCLUDE_SOC_H_
