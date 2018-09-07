@@ -1,6 +1,6 @@
 # external parameters
 export CROSS_PREFIX = mipsel-linux-
-export OPT_LEVEL = 2
+export OPT_LEVEL = 3
 
 # C compiler
 CFLAGS := -c -O$(OPT_LEVEL) -mips1 -EL -G8 -fno-builtin -nostdlib
