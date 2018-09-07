@@ -12,6 +12,10 @@
 #define GPIO_LED    (*(volatile unsigned *)0xbfd05010)
 #define GPIO_NUM    (*(volatile unsigned *)0xbfd05014)
 #define GPIO_TIMER  (*(volatile unsigned *)0xbfd05018)
+#define GPIO_BILED_OFF      0
+#define GPIO_BILED_RED      1
+#define GPIO_BILED_GREEN    2
+#define GPIO_BILED_REDGREEN 3
 
 // VGA
 // base address of video memory
