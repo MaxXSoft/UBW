@@ -1,5 +1,5 @@
-#ifndef UBW_TYPE_H_
-#define UBW_TYPE_H_
+#ifndef UBW_INCLUDE_TYPE_H_
+#define UBW_INCLUDE_TYPE_H_
 
 typedef unsigned char  uint8_t;
 typedef unsigned short uint16_t;
@@ -13,4 +13,4 @@ typedef unsigned int   size_t;
 
 #define NULL           ((void *)0)
 
-#endif // UBW_TYPE_H_
+#endif // UBW_INCLUDE_TYPE_H_

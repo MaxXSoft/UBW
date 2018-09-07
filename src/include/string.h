@@ -1,5 +1,5 @@
-#ifndef UBW_STRING_H_
-#define UBW_STRING_H_
+#ifndef UBW_INCLUDE_STRING_H_
+#define UBW_INCLUDE_STRING_H_
 
 #include "type.h"
 
@@ -80,4 +80,4 @@ long atol(const char *str);
 long strtol(const char *str, char **str_end, int base);
 unsigned long strtoul(const char *str, char **str_end, int base);
 
-#endif // UBW_STRING_H_
+#endif // UBW_INCLUDE_STRING_H_

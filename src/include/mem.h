@@ -1,5 +1,5 @@
-#ifndef UBW_MEM_H_
-#define UBW_MEM_H_
+#ifndef UBW_INCLUDE_MEM_H_
+#define UBW_INCLUDE_MEM_H_
 
 #include "type.h"
 
@@ -17,4 +17,4 @@ void *memset(void *dest, uint8_t byte, size_t length);
 void *memcpy(void *dest, const void *src, size_t length);
 int memcmp(const void *lhs, const void *rhs, size_t length);
 
-#endif // UBW_MEM_H_
+#endif // UBW_INCLUDE_MEM_H_

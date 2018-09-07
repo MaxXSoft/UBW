@@ -1,5 +1,5 @@
-#ifndef UBW_LIMITS_H_
-#define UBW_LIMITS_H_
+#ifndef UBW_INCLUDE_LIMITS_H_
+#define UBW_INCLUDE_LIMITS_H_
 
 #define CHAR_BIT    8
 #define CHAR_MIN    (-128)
@@ -20,4 +20,4 @@
 #define UINT_MAX    4294967295U
 #define ULONG_MAX   4294967295UL
 
-#endif // UBW_LIMITS_H_
+#endif // UBW_INCLUDE_LIMITS_H_

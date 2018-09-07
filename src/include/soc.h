@@ -1,5 +1,5 @@
-#ifndef UBW_SOC_H_
-#define UBW_SOC_H_
+#ifndef UBW_INCLUDE_SOC_H_
+#define UBW_INCLUDE_SOC_H_
 
 // CPU
 #define CPU_CLOCK   60000000
@@ -47,4 +47,4 @@
 #define UART_LSR_DR   (1 << 0)   // data_ready
 #define UART_LSR_THRE (1 << 5)   // data_ready
 
-#endif // UBW_SOC_H_
+#endif // UBW_INCLUDE_SOC_H_

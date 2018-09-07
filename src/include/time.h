@@ -1,5 +1,5 @@
-#ifndef UBW_TIME_H_
-#define UBW_TIME_H_
+#ifndef UBW_INCLUDE_TIME_H_
+#define UBW_INCLUDE_TIME_H_
 
 #include "type.h"
 
@@ -10,4 +10,4 @@ uint32_t GetTick();
 void DelayMicrosecond(uint32_t interval);
 void DelayMillisecond(uint32_t interval);
 
-#endif // UBW_TIME_H_
+#endif // UBW_INCLUDE_TIME_H_
