@@ -1,7 +1,9 @@
 .set noreorder
 .global __start
 
-.set STACK_BASE, 0x83f00000
+#ifndef MEM_STACK_BASE
+#define MEM_STACK_BASE 0x83FF0000
+#endif
 
 .org 0x000
 __start:
@@ -10,7 +12,7 @@ __start:
     ori $t0, $t0, 1
     mtc0 $t0, $12
     # initialize stack
-    la $sp, STACK_BASE
+    la $sp, MEM_STACK_BASE
     # initialize global pointer
     la $gp, _gp
     # initialize kernel
