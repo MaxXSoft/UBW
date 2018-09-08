@@ -94,11 +94,16 @@ void KernelMain() {
 }
 
 void ExceptionHandler() {
-    size_t cause, epc;
+    size_t debug, cause, epc;
+    debug = GPIO_NUM;
     asm volatile ("mfc0 %0, $13" : "=r"(cause));
     asm volatile ("mfc0 %0, $14" : "=r"(epc));
     for (;;) {
-        if (((~GPIO_SWITCH) & 0x01)) {
+        if (((~GPIO_SWITCH) & (1 << 1))) {
+            // display last debug info
+            GPIO_NUM = debug;
+        }
+        else if (((~GPIO_SWITCH) & (1 << 0))) {
             // display CP0.EPC
             GPIO_NUM = epc;
         }
