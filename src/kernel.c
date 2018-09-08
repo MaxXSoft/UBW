@@ -9,12 +9,14 @@
     So I pray, Unlimited Boot Works.
 */
 
+#include "kernel.h"
+
 #include "include/soc.h"
 #include "include/uart.h"
 #include "include/time.h"
+#include "include/mem.h"
 #include "include/debug.h"
 
-#include "kernel.h"
 #include "shell.h"
 
 const char *GetCurrentSeg() {
@@ -77,7 +79,20 @@ void LoadMemoryFromXmodem(void *memory) {
     //
 }
 
+static void MoveGlobalMemory() {
+    // get global pointer
+    size_t gp;
+    asm volatile ("move %0, $gp" : "=r"(gp));
+    // move global memory to new address space
+    memcpy((void *)MEM_GLOBAL_BASE, (void *)(gp - 32768), MEM_GLOBAL_SIZE);
+    // set new global pointer
+    gp = MEM_GLOBAL_BASE + 32768;
+    asm volatile ("move $gp, %0" : : "r"(gp));
+}
+
 void KernelMain() {
+    // initialize global memory
+    MoveGlobalMemory();
     DEBUG(1);
     // initialize UART controller with 230400 baud rate
     InitUART(230400);
