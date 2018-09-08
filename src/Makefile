@@ -7,7 +7,7 @@ C_FILES   := $(patsubst %.c, %.o, $(wildcard *.c))
 	$(CC) -o $@ $^
 
 %.o: %.s
-	$(AS) -o $@ $^
+	$(CC) -x assembler-with-cpp -o $@ $^
 
 all: $(ASM_FILES) $(C_FILES)
 	make -C ./library
