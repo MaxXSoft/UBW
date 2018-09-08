@@ -31,6 +31,10 @@ const char *GetCurrentSeg() {
     }
 }
 
+void ReadDisk(void *memory, size_t length, size_t disk_pos) {
+    //
+}
+
 void WriteDisk(const void *memory, size_t length, size_t disk_pos) {
     //
 }
@@ -87,7 +91,7 @@ static void MoveGlobalMemory() {
     memcpy((void *)MEM_GLOBAL_BASE, (void *)(gp - 32768), MEM_GLOBAL_SIZE);
     // set new global pointer
     gp = MEM_GLOBAL_BASE + 32768;
-    asm volatile ("move $gp, %0" : : "r"(gp));
+    asm volatile ("move $gp, %1" : "r"(gp));
 }
 
 void KernelMain() {

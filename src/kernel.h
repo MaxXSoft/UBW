@@ -5,8 +5,8 @@
 
 const char *GetCurrentSeg();
 
+void ReadDisk(void *memory, size_t length, size_t disk_pos);
 void WriteDisk(const void *memory, size_t length, size_t disk_pos);
-void InitSystemFromDisk(void *memory, size_t disk_pos);
 void InitSystemFromMemory(const void *memory);
 void OverrideSPI(const void *memory, size_t length);
 void LoadMemoryFromUART(void *memory, size_t length);
