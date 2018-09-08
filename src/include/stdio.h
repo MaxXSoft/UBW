@@ -3,6 +3,8 @@
 
 #define EOF (-1)
 
+#define STDIO_UART
+
 int putchar(int ch);
 int getchar();
 int puts(const char *str);

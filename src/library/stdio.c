@@ -1,6 +1,7 @@
 #include "../include/stdio.h"
 #include "../include/uart.h"
 #include "../include/type.h"
+#include "../include/debug.h"
 
 int putchar(int ch) {
     PutByteUART(ch);
@@ -13,6 +14,9 @@ int getchar() {
 
 int puts(const char *str) {
     for (; *str; ++str) PutByteUART(*str);
+#ifdef STDIO_UART
+    PutByteUART('\r');
+#endif
     PutByteUART('\n');
     return 0;
 }
@@ -21,7 +25,7 @@ char *gets(char *str) {
     char *ptr = str - 1;
     do {
         *++ptr = GetByteUART();
-    } while (*ptr && *ptr != '\n');
+    } while (*ptr && *ptr != '\n' && *ptr != '\r');
     *ptr = '\0';
     return str;
 }
