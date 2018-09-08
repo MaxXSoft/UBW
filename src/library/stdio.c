@@ -1,32 +1,54 @@
 #include "../include/stdio.h"
-#include "../include/uart.h"
 #include "../include/type.h"
 #include "../include/debug.h"
 
+#if defined(STDIO_UART)
+#include "../include/uart.h"
+#define PUT_BYTE(b) PutByteUART(b)
+#define GET_BYTE() GetByteUART()
+#elif defined(STDIO_VGAPS2)
+#define PUT_BYTE(b) ((void)0)
+#define GET_BYTE(b) ((void)0)
+#endif
+
 int putchar(int ch) {
-    PutByteUART(ch);
+    PUT_BYTE(ch);
     return ch;
 }
 
 int getchar() {
-    return GetByteUART();
+    return GET_BYTE();
 }
 
 int puts(const char *str) {
-    for (; *str; ++str) PutByteUART(*str);
-#ifdef STDIO_UART
-    PutByteUART('\r');
-#endif
-    PutByteUART('\n');
+    for (; *str; ++str) PUT_BYTE(*str);
+    PUT_BYTE('\r');
+    PUT_BYTE('\n');
     return 0;
 }
 
 char *gets(char *str) {
-    char *ptr = str - 1;
+    char *ptr = str, c;
     do {
-        *++ptr = GetByteUART();
-    } while (*ptr && *ptr != '\n' && *ptr != '\r');
-    *ptr = '\0';
+        c = GET_BYTE();
+        *ptr++ = c;
+        switch (c) {
+            case '\x03': case '\x04': {
+                // '^C' or '^D'
+                return NULL;
+            }
+            case '\b': {
+                if (ptr != str) --ptr;
+                break;
+            }
+            default: {
+                // echo input
+                PUT_BYTE(c);
+                break;
+            }
+        }
+    } while (c && c != '\n' && c != '\r');
+    *--ptr = '\0';
     return str;
 }
 
@@ -35,7 +57,7 @@ static void PrintInteger(int num, int base, int sign) {
     unsigned int value;
     if (sign && num < 0) {
         value = -num;
-        PutByteUART('-');
+        PUT_BYTE('-');
     }
     else {
         value = num;
@@ -50,7 +72,7 @@ static void PrintInteger(int num, int base, int sign) {
     // print value
     for (--i; i >= 0; --i) {
         char c = buffer[i];
-        PutByteUART(c <= 9 ? c + '0' : c - 10 + 'a');
+        PUT_BYTE(c <= 9 ? c + '0' : c - 10 + 'a');
     }
 }
 
@@ -65,13 +87,13 @@ int printf(const char *format, ...) {
             switch (format[i + 1]) {
                 case 's': {
                     const char *str = *arg;
-                    for (; *str; ++str) PutByteUART(*str);
+                    for (; *str; ++str) PUT_BYTE(*str);
                     ++arg;
                     ++i;
                     break;
                 }
                 case 'c': {
-                    PutByteUART((int)*arg);
+                    PUT_BYTE((int)*arg);
                     ++arg;
                     ++i;
                     break;
@@ -107,14 +129,14 @@ int printf(const char *format, ...) {
                     break;
                 }
                 case '%': {
-                    PutByteUART('%');
+                    PUT_BYTE('%');
                     ++i;
                     break;
                 }
             }
         }
         else {
-            PutByteUART(c);
+            PUT_BYTE(c);
         }
     }
     return 0;
