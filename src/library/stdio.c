@@ -38,7 +38,10 @@ char *gets(char *str) {
                 return NULL;
             }
             case '\b': {
-                if (ptr != str) --ptr;
+                if (ptr != str) ptr -= 2;
+                PUT_BYTE('\b');
+                PUT_BYTE(' ');
+                PUT_BYTE('\b');
                 break;
             }
             default: {
