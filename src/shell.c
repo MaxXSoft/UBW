@@ -9,11 +9,14 @@
 
 #include "kernel.h"
 
+typedef void (*CommandFuncPtr)(const char *, const char *,
+        const char *, const char *);
+
 typedef struct CommandPrototype {
     const char *name;
     size_t name_len;
     size_t arg_len;
-    const void *handler_pointer;
+    CommandFuncPtr handler_pointer;
 } Command;
 
 typedef enum LoadTypePrototype {
@@ -29,14 +32,16 @@ static void LoadData(const char *type, const char *base_addr,
 // static void WriteFile();
 static void InitSystem(const char *base_addr);
 static void Override(const char *base_addr, const char *length);
+static void Peep(const char *base_addr, const char *length);
 
 Command command_list[] = {
-    {"about", 5, 0, &PrintAbout},
-    {"echo", 4, 1, &Echo},
-    {"clear", 5, 0, &Clear},
-    {"load", 4, 3, &LoadData},
-    {"init", 4, 1, &InitSystem},
-    {"override", 8, 2, &Override},
+    {"about", 5, 0, (CommandFuncPtr)&PrintAbout},
+    {"echo", 4, 1, (CommandFuncPtr)&Echo},
+    {"clear", 5, 0, (CommandFuncPtr)&Clear},
+    {"load", 4, 3, (CommandFuncPtr)&LoadData},
+    {"init", 4, 1, (CommandFuncPtr)&InitSystem},
+    {"override", 8, 2, (CommandFuncPtr)&Override},
+    {"peep", 4, 2, (CommandFuncPtr)&Peep},
 };
 
 static void PrintAbout() {
@@ -52,7 +57,7 @@ static void PrintAbout() {
 }
 
 static void Echo(const char *str) {
-    puts(str);
+    if (str) puts(str);
 }
 
 static void Clear() {
@@ -63,14 +68,22 @@ static void LoadData(const char *type, const char *base_addr,
         const char *length) {
     LoadType t = (LoadType)strtol(type, NULL, 10);
     void *base = (void *)strtoul(base_addr, NULL, 16);
-    size_t len = (size_t)strtoul(length, NULL, 10);
+    size_t len = length ? (size_t)strtoul(length, NULL, 10) : 0;
     if (t == kLoadUART) {
         LoadMemoryFromUART(base, len);
+        puts("done");
     }
     else {   // kLoadXmodem
-        LoadMemoryFromXmodem(base);
+        int ret = LoadMemoryFromXmodem(base);
+        puts("");
+        puts("");
+        if (ret < 0) {
+            printf("data transfer error (code %d)\r\n", ret);
+        }
+        else {
+            printf("accepted %d bytes of data\r\n", ret);
+        }
     }
-    puts("done");
 }
 
 static void InitSystem(const char *base_addr) {
@@ -93,13 +106,21 @@ static void Override(const char *base_addr, const char *length) {
     OverrideSPI(base, len);
 }
 
+static void Peep(const char *base_addr, const char *length) {
+    void *base = (void *)strtoul(base_addr, NULL, 16);
+    size_t len = length ? (size_t)strtoul(length, NULL, 10) : 4;
+    for (int i = 0; i < len; i += 4) {
+        printf("%p: %x\r\n", base + i, *(uint32_t *)(base + i));
+    }
+}
+
 static void REPL() {
     char input_buffer[128];
     for (;;) {
         // print prompt
         printf("UBW> ");
         // get user input
-        if (!gets(input_buffer)) {
+        if (!gets(input_buffer) || !input_buffer[0]) {
             puts("");
             continue;
         }
@@ -131,21 +152,8 @@ static void REPL() {
                     p += j;
                 }
                 // call command
-                asm volatile (
-                    "move $t0, %0\n"
-                    "move $t1, %1\n"
-                    "move $t2, %2\n"
-                    "move $t3, %3\n"
-                    "move $t4, %4\n"
-                    "move $a0, $t0\n"
-                    "move $a1, $t1\n"
-                    "move $a2, $t2\n"
-                    "move $a3, $t3\n"
-                    "jalr $t4\n"
-                    : : "r"(alloc_ptrs[0]), "r"(alloc_ptrs[1]),
-                        "r"(alloc_ptrs[2]), "r"(alloc_ptrs[3]),
-                        "r"(command_list[i].handler_pointer)
-                );
+                command_list[i].handler_pointer(alloc_ptrs[0],
+                        alloc_ptrs[1], alloc_ptrs[2], alloc_ptrs[3]);
                 // free allocated pointers
                 for (int i = 0; i < 4; ++i) {
                     if (alloc_ptrs[i]) free(alloc_ptrs[i]);
