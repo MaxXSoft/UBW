@@ -83,44 +83,67 @@ void LoadMemoryFromXmodem(void *memory) {
     //
 }
 
-static void MoveGlobalMemory() {
-    // get global pointer
-    size_t gp;
-    asm volatile ("move %0, $gp" : "=r"(gp));
+static void InitialMemory(size_t gp, size_t bss_start, size_t bss_end) {
     // move global memory to new address space
-    memcpy((void *)MEM_GLOBAL_BASE, (void *)(gp - 32768), MEM_GLOBAL_SIZE);
+    gp -= 32768;
+    memcpy((void *)MEM_GLOBAL_BASE, (void *)gp, bss_start - gp);
+    // initialize static memory
+    DEBUG(bss_start);
+    size_t bss_base = MEM_GLOBAL_BASE + (bss_start - gp);
+    memset((void *)bss_base, 0, bss_end - bss_start);
     // set new global pointer
-    gp = MEM_GLOBAL_BASE + 32768;
-    asm volatile ("move $gp, %1" : "r"(gp));
+    DEBUG(bss_end);
+    asm volatile ("la $gp, %0" : : "i"(MEM_GLOBAL_BASE + 32768));
 }
 
-void KernelMain() {
-    // initialize global memory
-    MoveGlobalMemory();
-    DEBUG(1);
+void KernelMain(size_t gp, size_t bss_start, size_t bss_end) {
+    // initialize memory
+    InitialMemory(gp, bss_start, bss_end);
     // initialize UART controller with 230400 baud rate
     InitUART(230400);
-    DEBUG(2);
     // get GPIO switch status
     if (((~GPIO_SWITCH) & 0x01)) {
-        DEBUG(3);
         InitSystemFromDisk((void *)0x80000000, 0);
     }
     else {
-        DEBUG(4);
         InitShell();
     }
 }
 
 void ExceptionHandler() {
-    size_t debug, cause, epc;
+    size_t debug, gp, sp, ra, badv, status, cause, epc;
     debug = GPIO_NUM;
+    asm volatile ("move %0, $gp" : "=r"(gp));
+    asm volatile ("move %0, $sp" : "=r"(sp));
+    asm volatile ("move %0, $ra" : "=r"(ra));
+    asm volatile ("mfc0 %0, $8" : "=r"(badv));
+    asm volatile ("mfc0 %0, $12" : "=r"(status));
     asm volatile ("mfc0 %0, $13" : "=r"(cause));
     asm volatile ("mfc0 %0, $14" : "=r"(epc));
     for (;;) {
-        if (((~GPIO_SWITCH) & (1 << 1))) {
+        if (((~GPIO_SWITCH) & (1 << 6))) {
             // display last debug info
             GPIO_NUM = debug;
+        }
+        else if (((~GPIO_SWITCH) & (1 << 5))) {
+            // display global pointer
+            GPIO_NUM = gp;
+        }
+        else if (((~GPIO_SWITCH) & (1 << 4))) {
+            // display stack pointer
+            GPIO_NUM = sp;
+        }
+        else if (((~GPIO_SWITCH) & (1 << 3))) {
+            // display return address
+            GPIO_NUM = ra;
+        }
+        else if (((~GPIO_SWITCH) & (1 << 2))) {
+            // display CP0.BadVAddr
+            GPIO_NUM = badv;
+        }
+        else if (((~GPIO_SWITCH) & (1 << 1))) {
+            // display CP0.Status
+            GPIO_NUM = status;
         }
         else if (((~GPIO_SWITCH) & (1 << 0))) {
             // display CP0.EPC
