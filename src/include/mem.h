@@ -45,18 +45,16 @@
 */
 
 #ifndef MEM_HEAP_BASE
-#define MEM_HEAP_BASE 0x84000000
+#define MEM_HEAP_BASE   0x84000000
 #endif
 
 #ifndef MEM_HEAP_SIZE
-#define MEM_HEAP_SIZE 0x100000
+#define MEM_HEAP_SIZE   0x100000
 #endif
 
 #ifndef MEM_GLOBAL_BASE
 #define MEM_GLOBAL_BASE 0x82FF0000
 #endif
-
-#define MEM_GLOBAL_SIZE 0x0000FFFF
 
 void *malloc(size_t length);
 void free(void *ptr);
