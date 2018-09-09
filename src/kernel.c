@@ -79,8 +79,92 @@ void LoadMemoryFromUART(void *memory, size_t length) {
     }
 }
 
-void LoadMemoryFromXmodem(void *memory) {
-    //
+// calculate CRC for Xmodem protocol
+static uint16_t CalcCRC(uint8_t *buffer, size_t length) {
+    uint16_t crc = 0;
+    while (length--) {
+        crc = crc ^ ((uint16_t)*buffer++ << 8);
+        for (int i = 0; i < 8; ++i) {
+            if (crc & 0x8000) {
+                crc = (crc << 1) ^ 0x1021;
+            }
+            else {
+                crc = crc << 1;
+            }
+        }
+    }
+    return crc;
+}
+
+int LoadMemoryFromXmodem(void *memory) {
+    size_t status = 0, len, crc;
+    uint8_t byte, data[1024], *p = memory;
+    const uint8_t kSOH = '\x01', kSTX = '\x02', kEOT = '\x04',
+            kACK = '\x06', kCAN = '\x18';
+    // send request
+    for (;;) {
+        PutByteUART('C');   // CRC mode
+        DelayMillisecond(500);
+        if ((UART_LSR & UART_LSR_DR)) {
+            byte = UART_BUF;
+            break;
+        }
+    }
+    // process data blocks
+    for (;;) {
+        // check block header
+        if (byte == kEOT) {
+            break;   // end of transmission
+        }
+        else if (byte == kSOH) {
+            len = 128;   // 128B mode
+        }
+        else if (byte == kSTX) {
+            len = 1024;   // 1K mode
+        }
+        else {
+            DEBUG(byte);
+            status = -1;   // error
+            break;
+        }
+        // get & check package number
+        byte = GetByteUART();
+        if (GetByteUART() != ~byte) {
+            DEBUG(byte);
+            status = -2;   // error
+            break;
+        }
+        // receive data block
+        for (int i = 0; i < len; ++i) data[i] = GetByteUART();
+        // receive CRC
+        crc = (GetByteUART() << 8) | GetByteUART();
+        // check data block
+        if (CalcCRC(data, len) != crc) {
+            DEBUG(crc);
+            status = -3;   // error
+            break;
+        }
+        // write memory
+        for (int i = 0; i < len; ++i) p[i] = data[i];
+        p += len;
+        status += len;
+        // accept & get next header
+        PutByteUART(kACK);
+        byte = GetByteUART();
+    }
+    if (status < 0) {
+        // reject
+        PutByteUART(kCAN);
+    }
+    else {
+        // accept
+        PutByteUART(kACK);
+        if (GetByteUART() != kEOT) return -4;   // error
+        PutByteUART(kACK);
+        // delay
+        DelayMillisecond(500);
+    }
+    return status;
 }
 
 static void InitialMemory(size_t gp, size_t bss_start, size_t bss_end) {
@@ -88,11 +172,9 @@ static void InitialMemory(size_t gp, size_t bss_start, size_t bss_end) {
     gp -= 32768;
     memcpy((void *)MEM_GLOBAL_BASE, (void *)gp, bss_start - gp);
     // initialize static memory
-    DEBUG(bss_start);
     size_t bss_base = MEM_GLOBAL_BASE + (bss_start - gp);
     memset((void *)bss_base, 0, bss_end - bss_start);
     // set new global pointer
-    DEBUG(bss_end);
     asm volatile ("la $gp, %0" : : "i"(MEM_GLOBAL_BASE + 32768));
 }
 
