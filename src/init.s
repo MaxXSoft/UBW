@@ -13,8 +13,10 @@ __start:
     mtc0 $t0, $12
     # initialize stack
     la $sp, MEM_STACK_BASE
-    # initialize global pointer
-    la $gp, _gp
+    # get address of static memory
+    la $a0, _gp
+    la $a1, __bss_start
+    la $a2, __bss_end
     # initialize kernel
     la $t0, KernelMain
     li $t1, 0x20000000
