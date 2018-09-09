@@ -104,47 +104,22 @@ void free(void *ptr) {
 }
 
 void *memset(void *dest, uint8_t byte, size_t length) {
-    uint32_t word = (byte << 24) | (byte << 16) | (byte << 8) | byte;
-    uint32_t *ptr_4;
-    for (ptr_4 = dest; (uint32_t)ptr_4 + 4 <= (uint32_t)dest + length;
-            ptr_4 += 4) {
-        *ptr_4 = word;
-    }
-    for (uint8_t *ptr_1 = (uint8_t *)ptr_4;
-            (uint32_t)ptr_1 < (uint32_t)dest + length; ++ptr_1) {
-        *ptr_1 = byte;
-    }
+    uint8_t *ptr = dest;
+    while (length--) *ptr++ = byte;
     return dest;
 }
 
 void *memcpy(void *dest, const void *src, size_t length) {
-    void *p = dest;
-    while (length >= 4) {
-        *((uint32_t *)dest) = *((uint32_t *)src);
-        dest += 4;
-        src += 4;
-        length -= 4;
-    }
-    while (length--) {
-        *((uint8_t *)dest++) = *((uint8_t *)src++);
-    }
-    return p;
+    uint8_t *ptr = dest;
+    while (length--) *ptr++ = *((uint8_t *)src++);
+    return dest;
 }
 
 int memcmp(const void *lhs, const void *rhs, size_t length) {
     int result = 0;
-    while (length >= 4) {
-        if ((result = *((uint32_t *)lhs) - *((uint32_t *)rhs))) {
-            return result;
-        }
-        lhs += 4;
-        rhs += 4;
-        length -= 4;
-    }
     while (length--) {
-        if ((result = *((uint8_t *)lhs++) - *((uint8_t *)rhs++))) {
-            return result;
-        }
+        result = (int)(*((uint8_t *)lhs++)) - *((uint8_t *)rhs++);
+        if (result) return result;
     }
     return result;
 }
