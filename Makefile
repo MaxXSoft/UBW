@@ -65,7 +65,6 @@ $(TARGET_DIR)/%.elf: $(TEST_DIR)/%.o
 
 $(TARGET_DIR)/ubw.elf: linker.ld
 	$(eval SRC_OBJS = $(wildcard $(SRC_DIR)/*.o $(SRC_DIR)/library/*.o))
-	@echo $(SRC_OBJS)
 	$(LD) -T linker.ld -o $@ $(SRC_OBJS)
 	$(OBJD) $@ > $@.s
 
