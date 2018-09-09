@@ -56,6 +56,10 @@ char *gets(char *str) {
 }
 
 static void PrintInteger(int num, int base, int sign) {
+    if (!num) {
+        PUT_BYTE('0');
+        return;
+    }
     // get value
     unsigned int value;
     if (sign && num < 0) {
