@@ -43,7 +43,7 @@ SECTIONS
   *(.sdata) 
    *(.lit8) 
    *(.lit4) 
-}
+  }
   _edata  =  .;
   PROVIDE (edata = .);
 
@@ -59,7 +59,7 @@ SECTIONS
    *(COMMON)
   }
   . = ALIGN(8);
-  _end = . ;
+  __bss_end = . ;
   PROVIDE (end = .);
 
    . = ALIGN(32);
