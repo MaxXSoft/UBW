@@ -39,7 +39,7 @@ SRC_OBJS      = $(wildcard $(SRC_DIR)/*.o $(SRC_DIR)/library/*.o)
 
 .PHONY: all ubw test ubw_make test_make clean
 
-all: $(TARGET_DIR) test
+all: $(TARGET_DIR) test ubw
 
 ubw: $(TARGET_DIR) ubw_make $(TARGET_DIR)/ubw.bin
 
