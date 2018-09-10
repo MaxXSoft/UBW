@@ -28,21 +28,19 @@ void PutByteUART(uint8_t byte) {
 }
 
 uint32_t GetWordUART() {
-    // little endian
     uint32_t word = 0;
     for (int i = 0; i < 4; ++i) {
         while (!(UART_LSR & UART_LSR_DR));
-        word <<= 8;
-        word |= UART_BUF;
+        word >>= 8;
+        word |= ((UART_BUF & 0xff) << 24);
     }
     return word;
 }
 
 void PutWordUART(uint32_t word) {
-    // little endian
     for (int i = 0; i < 4; ++i) {
         while (!(UART_LSR & UART_LSR_THRE));
-        UART_BUF = word;
+        UART_BUF = word & 0xff;
         word >>= 8;
     }
 }
