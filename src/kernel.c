@@ -59,7 +59,9 @@ void InitSystemFromMemory(const void *memory) {
     GPIO_LED = 0xffff;
     GPIO_NUM = 0;
     // jump to memory address
-    asm volatile ("jr $a1");
+    typedef void (*SystemEntry)();
+    SystemEntry entry = (SystemEntry)memory;
+    entry();
 }
 
 void OverrideSPI(const void *memory, size_t length) {
@@ -72,10 +74,11 @@ void OverrideSPI(const void *memory, size_t length) {
 void LoadMemoryFromUART(void *memory, size_t length) {
     // memory & length must be a multiple of 4
     if (((size_t)memory & 0x3) || (length & 0x3)) return;
-    while (length) {
-        *((uint32_t *)memory) = GetWordUART();
-        memory += 4;
-        length -= 4;
+    uint32_t *ptr = memory, word;
+    for (int i = 0; i < (length >> 2); ++i) {
+        word = GetWordUART();
+        DEBUG(word);
+        ptr[i] = word;
     }
 }
 
@@ -129,8 +132,7 @@ int LoadMemoryFromXmodem(void *memory) {
         }
         // get & check package number
         byte = GetByteUART();
-        if (GetByteUART() != ~byte) {
-            DEBUG(byte);
+        if ((GetByteUART() & 0xff) != ((~byte) & 0xff)) {
             status = -2;   // error
             break;
         }
@@ -159,8 +161,6 @@ int LoadMemoryFromXmodem(void *memory) {
     else {
         // accept
         PutByteUART(kACK);
-        if (GetByteUART() != kEOT) return -4;   // error
-        PutByteUART(kACK);
         // delay
         DelayMillisecond(500);
     }
@@ -181,11 +181,23 @@ static void InitialMemory(size_t gp, size_t bss_start, size_t bss_end) {
 void KernelMain(size_t gp, size_t bss_start, size_t bss_end) {
     // initialize memory
     InitialMemory(gp, bss_start, bss_end);
-    // initialize UART controller with 230400 baud rate
-    InitUART(230400);
+    // initialize UART controller
+    InitUART((~GPIO_SWITCH) & 0x80 ? 115200 : 230400);
     // get GPIO switch status
     if (((~GPIO_SWITCH) & 0x01)) {
+        // boot from disk (NAND flash)
         InitSystemFromDisk((void *)0x80000000, 0);
+    }
+    else if (((~GPIO_SWITCH) & 0x02)) {
+        // boot from UART
+        GPIO_BILED0 = GPIO_BILED_GREEN;
+        GPIO_BILED1 = GPIO_BILED_OFF;
+        size_t length = GetWordUART();
+        DEBUG(length);
+        LoadMemoryFromUART((void *)0x80000000, length);
+        GPIO_BILED0 = GPIO_BILED_OFF;
+        GPIO_NUM = 0;
+        InitSystemFromMemory((void *)0x80000000);
     }
     else {
         InitShell();
