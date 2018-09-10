@@ -110,7 +110,7 @@ static void Peep(const char *base_addr, const char *length) {
     void *base = (void *)strtoul(base_addr, NULL, 16);
     size_t len = length ? (size_t)strtoul(length, NULL, 10) : 4;
     for (int i = 0; i < len; i += 4) {
-        printf("%p: %x\r\n", base + i, *(uint32_t *)(base + i));
+        printf("%u: %u\r\n", base + i, *(uint32_t *)(base + i));
     }
 }
 
