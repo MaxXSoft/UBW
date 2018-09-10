@@ -6,7 +6,7 @@ __start:
     li $t0, 1
     lui $t1, 0xbfd0
     lw $t1, 0x5000($t1)
-    beq $t0, $t1, disp_timer
+    bne $t0, $t1, disp_timer
     nop
 disp_keypad:
     # red light
