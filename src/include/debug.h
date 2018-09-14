@@ -3,7 +3,7 @@
 
 #ifndef DISABLE_DEBUG
 #include "soc.h"
-#define DEBUG(v)  GPIO_NUM = (v);
+#define DEBUG(v)  GPIO_NUM = (v)
 #else
 #define DEBUG(v)  ((void)0)
 #endif
