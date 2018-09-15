@@ -28,8 +28,8 @@ static void Echo(const char *str);
 static void Clear();
 static void LoadData(const char *type, const char *base_addr,
         const char *length);
-// static void ReadFile();
-// static void WriteFile();
+static void WriteFlash(const char *base_addr, const char *length,
+        const char *disk_pos);
 static void InitSystem(const char *base_addr);
 static void Override(const char *base_addr, const char *length);
 static void Peep(const char *base_addr, const char *length);
@@ -39,6 +39,7 @@ Command command_list[] = {
     {"echo", 4, 1, (CommandFuncPtr)&Echo},
     {"clear", 5, 0, (CommandFuncPtr)&Clear},
     {"load", 4, 3, (CommandFuncPtr)&LoadData},
+    {"write", 5, 3, (CommandFuncPtr)&WriteFlash},
     {"init", 4, 1, (CommandFuncPtr)&InitSystem},
     {"override", 8, 2, (CommandFuncPtr)&Override},
     {"peep", 4, 2, (CommandFuncPtr)&Peep},
@@ -86,6 +87,14 @@ static void LoadData(const char *type, const char *base_addr,
     }
 }
 
+static void WriteFlash(const char *base_addr, const char *length,
+        const char *disk_pos) {
+    void *base = (void *)strtoul(base_addr, NULL, 16);
+    size_t len = (size_t)strtoul(length, NULL, 10);
+    size_t pos = disk_pos ? (size_t)strtoul(disk_pos, NULL, 10) : 0;
+    WriteDisk(base, len, pos);
+}
+
 static void InitSystem(const char *base_addr) {
     void *base = (void *)strtoul(base_addr, NULL, 16);
     Clear();
@@ -103,7 +112,7 @@ static void Override(const char *base_addr, const char *length) {
         return;
     }
     Clear();
-    OverrideSPI(base, len);
+    OverrideSPI(base, len, 0);
 }
 
 static void Peep(const char *base_addr, const char *length) {
