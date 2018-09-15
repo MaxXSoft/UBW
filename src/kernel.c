@@ -13,6 +13,7 @@
 
 #include "include/soc.h"
 #include "include/uart.h"
+#include "include/spi.h"
 #include "include/time.h"
 #include "include/mem.h"
 #include "include/debug.h"
@@ -31,23 +32,14 @@ const char *GetCurrentSeg() {
     }
 }
 
-void ReadDisk(void *memory, size_t length, size_t disk_pos) {
-    //
-}
-
 void WriteDisk(const void *memory, size_t length, size_t disk_pos) {
-    //
-}
-
-void InitSystemFromDisk(void *memory, size_t disk_pos) {
-    // TODO: implement NAND controller
-    // blink
-    for (;;) {
-        DelayMillisecond(500);
-        GPIO_LED = 0xfffe;
-        DelayMillisecond(500);
-        GPIO_LED = 0xffff;
-    }
+    // memory & length must be a multiple of 4
+    if (((size_t)memory & 0x3) || (length & 0x3)) return;
+    // erase area
+    uint32_t start_addr = DISK_START_ADDR + disk_pos;
+    EraseAreaSPI(start_addr, start_addr + length);
+    // write area
+    WriteAreaSPI(start_addr, (uint8_t *)memory, length, 1);
 }
 
 void InitSystemFromMemory(const void *memory) {
@@ -64,11 +56,34 @@ void InitSystemFromMemory(const void *memory) {
     entry();
 }
 
-void OverrideSPI(const void *memory, size_t length) {
-    //
-    /*
-        //
-    */
+void OverrideSPI(const void *memory, size_t length, uint32_t step) {
+    if (!step) {   // step 1
+        // only can override boot sector
+        if (length > BOOT_SECTOR_SIZE) return;
+        // memory & length must be a multiple of 4
+        if (((size_t)memory & 0x3) || (length & 0x3)) return;
+        // copy UBW to new address
+        uint8_t *buffer = (uint8_t *)malloc(BOOT_SECTOR_SIZE);
+        memcpy(buffer, (void *)FLASH_START_ADDR, BOOT_SECTOR_SIZE);
+        // caculate the address of new entry
+        uint32_t entry_addr = (uint32_t)&OverrideSPI;
+        entry_addr -= FLASH_START_ADDR;
+        entry_addr += (uint32_t)buffer;
+        // jump to next step
+        typedef void (*OverrideEntry)(const void *, size_t, uint32_t);
+        OverrideEntry entry = (OverrideEntry)entry_addr;
+        entry(memory, length, (uint32_t)buffer);
+    }
+    else {   // step 2
+        // override
+        EraseAreaSPI(FLASH_START_ADDR, DISK_START_ADDR);
+        WriteAreaSPI(FLASH_START_ADDR, (uint8_t *)memory,
+                BOOT_SECTOR_SIZE, 1);
+        // free the buffer
+        free((void *)step);
+        // do not return
+        for (;;);
+    }
 }
 
 void LoadMemoryFromUART(void *memory, size_t length) {
@@ -167,6 +182,11 @@ int LoadMemoryFromXmodem(void *memory) {
     return status;
 }
 
+static void InitSystemFromDisk() {
+    // jump to disk address (offset = 0)
+    InitSystemFromMemory((void *)DISK_START_ADDR);
+}
+
 static void InitialMemory(size_t gp, size_t bss_start, size_t bss_end) {
     // move global memory to new address space
     gp -= 32768;
@@ -185,8 +205,8 @@ void KernelMain(size_t gp, size_t bss_start, size_t bss_end) {
     InitUART((~GPIO_SWITCH) & 0x80 ? 115200 : 230400);
     // get GPIO switch status
     if (((~GPIO_SWITCH) & 0x01)) {
-        // boot from disk (NAND flash)
-        InitSystemFromDisk((void *)0x80000000, 0);
+        // boot from disk
+        InitSystemFromDisk();
     }
     else if (((~GPIO_SWITCH) & 0x02)) {
         // boot from UART
