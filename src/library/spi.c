@@ -55,6 +55,17 @@ static void InitRead() {
   	SPI_SET(SPI_CR_PARAM, 0x47);
 }
 
+static int WaitStatusRegister() {
+    uint8_t value;
+    SPI_CS_L();
+    SPI_SEND_DATA(0x05);
+    do {
+        SPI_RECV_DATA(value);
+    } while (value & 0x01);
+    SPI_CS_H();
+    return value;
+}
+
 static void SetWriteEnable() {
     uint8_t value;
     WaitStatusRegister();
@@ -67,17 +78,6 @@ static void SetWriteEnable() {
         SPI_RECV_DATA(value);
     } while (!(value & 0x02));
     SPI_CS_H();
-}
-
-static int WaitStatusRegister() {
-    uint8_t value;
-    SPI_CS_L();
-    SPI_SEND_DATA(0x05);
-    do {
-        SPI_RECV_DATA(value);
-    } while (value & 0x01);
-    SPI_CS_H();
-    return value;
 }
 
 static void WriteStatusRegister(uint8_t status) {
@@ -98,37 +98,7 @@ static int ReadStatusRegister() {
     return value;
 }
 
-// external functions
-void EraseSPI() {
-    // send command
-    InitWrite();
-    WriteStatusRegister(0);
-    SetWriteEnable();
-    WaitStatusRegister();
-    SPI_CS_L();
-    SPI_SEND_DATA(0xc7);
-    SPI_CS_H();
-    // wait until finish
-    while (ReadStatusRegister() & 0x3);
-}
-
-void EraseAreaSPI(uint32_t addr_start, uint32_t addr_end) {
-    const uint32_t sector_size = 0x10000;
-    InitWrite();
-    for(uint32_t i = addr_start; i < addr_end; i += sector_size) {
-        SetWriteEnable();
-        WaitStatusRegister();
-        SPI_CS_L();
-        SPI_SEND_DATA(0xd8);
-        SPI_SEND_DATA(i >> 16);
-        SPI_SEND_DATA(i >> 8);
-        SPI_SEND_DATA(i);
-        SPI_CS_H();
-    }
-    WaitStatusRegister();
-}
-
-void WriteByteSPI(uint32_t addr, uint8_t data) {
+static void WriteByteSPI(uint32_t addr, uint8_t data) {
     // get different segment of flash address
     uint8_t addr2 = (addr & 0xff0000) >> 16;
     uint8_t addr1 = (addr & 0x00ff00) >> 8;
@@ -145,7 +115,7 @@ void WriteByteSPI(uint32_t addr, uint8_t data) {
     SPI_CS_H();
 }
 
-void WritePageSPI(uint32_t addr, uint8_t *buffer, uint32_t count) {
+static void WritePageSPI(uint32_t addr, uint8_t *buffer, uint32_t count) {
     // get different segment of flash address
     uint8_t addr2 = (addr & 0xff0000) >> 16;
     uint8_t addr1 = (addr & 0x00ff00) >> 8;
@@ -163,6 +133,38 @@ void WritePageSPI(uint32_t addr, uint8_t *buffer, uint32_t count) {
         SPI_SEND_DATA(buffer[i]);
     }
     SPI_CS_H();
+}
+
+// external functions
+void EraseSPI() {
+    // send command
+    InitWrite();
+    WriteStatusRegister(0);
+    SetWriteEnable();
+    WaitStatusRegister();
+    SPI_CS_L();
+    SPI_SEND_DATA(0xc7);
+    SPI_CS_H();
+    // wait until finish
+    while (ReadStatusRegister() & 0x3);
+    InitRead();
+}
+
+void EraseAreaSPI(uint32_t addr_start, uint32_t addr_end) {
+    const uint32_t sector_size = 0x10000;
+    InitWrite();
+    for(uint32_t i = addr_start; i < addr_end; i += sector_size) {
+        SetWriteEnable();
+        WaitStatusRegister();
+        SPI_CS_L();
+        SPI_SEND_DATA(0xd8);
+        SPI_SEND_DATA(i >> 16);
+        SPI_SEND_DATA(i >> 8);
+        SPI_SEND_DATA(i);
+        SPI_CS_H();
+    }
+    WaitStatusRegister();
+    InitRead();
 }
 
 void WriteAreaSPI(uint32_t addr, uint8_t *buffer, size_t length, int page) {
@@ -190,6 +192,7 @@ void WriteAreaSPI(uint32_t addr, uint8_t *buffer, size_t length, int page) {
         }
     }
     WaitStatusRegister();
+    InitRead();
 }
 
 void ReadAreaSPI(uint32_t addr, uint8_t *buffer, size_t length) {
@@ -208,4 +211,5 @@ void ReadAreaSPI(uint32_t addr, uint8_t *buffer, size_t length) {
         SPI_RECV_DATA(buffer[i]);
     }
     SPI_CS_H();
+    InitRead();
 }
