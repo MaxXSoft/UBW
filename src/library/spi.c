@@ -151,6 +151,9 @@ void EraseSPI() {
 }
 
 void EraseAreaSPI(uint32_t addr_start, uint32_t addr_end) {
+    // preprocess address
+    addr_start &= 0x000fffff;
+    addr_end &= 0x000fffff;
     const uint32_t sector_size = 0x10000;
     InitWrite();
     for(uint32_t i = addr_start; i < addr_end; i += sector_size) {
@@ -168,6 +171,8 @@ void EraseAreaSPI(uint32_t addr_start, uint32_t addr_end) {
 }
 
 void WriteAreaSPI(uint32_t addr, uint8_t *buffer, size_t length, int page) {
+    // preprocess address
+    addr &= 0x000fffff;
     InitWrite();
     WriteStatusRegister(0x00);
     if (page) {   // per page
@@ -197,7 +202,7 @@ void WriteAreaSPI(uint32_t addr, uint8_t *buffer, size_t length, int page) {
 
 void ReadAreaSPI(uint32_t addr, uint8_t *buffer, size_t length) {
     // get different segment of flash address
-    uint8_t addr2 = (addr & 0xff0000) >> 16;
+    uint8_t addr2 = (addr & 0x0f0000) >> 16;
     uint8_t addr1 = (addr & 0x00ff00) >> 8;
     uint8_t addr0 = addr & 0x0000ff;
     // send command

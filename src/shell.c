@@ -91,7 +91,7 @@ static void WriteFlash(const char *base_addr, const char *length,
         const char *disk_pos) {
     void *base = (void *)strtoul(base_addr, NULL, 16);
     size_t len = (size_t)strtoul(length, NULL, 10);
-    size_t pos = disk_pos ? (size_t)strtoul(disk_pos, NULL, 10) : 0;
+    size_t pos = disk_pos ? (size_t)strtoul(disk_pos, NULL, 16) : 0;
     WriteDisk(base, len, pos);
 }
 
