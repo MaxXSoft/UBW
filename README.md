@@ -19,3 +19,9 @@ Have withstood pain to initialize many stacks.
 Yet, those pointers will never hold anything.
 
 So I pray, **Unlimited Boot Works.**
+
+## License
+
+Copyright (C) 2010-2018 MaxXing.
+
+Copyright (C) 2018 USTB NSCSCC Team.
