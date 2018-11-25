@@ -7,6 +7,6 @@ void srand(unsigned seed) {
 }
 
 int rand() {
-    last_rand = (last_rand * 9301 + 49297) % 233280;
-    return last_rand / 233280;
+    last_rand = (last_rand * 9301 + 49297) % RAND_MAX;
+    return last_rand;
 }
