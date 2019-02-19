@@ -16,7 +16,7 @@ SECTIONS
   .data    : AT(rodata_end)
   {
     *(.rodata*)
-    *(.reginfo)
+    /* *(.reginfo) */
     *(.init)
     *(.stub)
     /* .gnu.warning sections are handled specially by elf32.em.  */
